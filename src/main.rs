@@ -7,7 +7,7 @@ const UNKOWN: char = '?';
 #[derive(Debug)]
 struct Record {
     springs: Vec<String>,
-    damaged_spring_groupings: Vec<u32>,
+    damaged_spring_groupings: Vec<usize>,
 }
 
 fn parse_input(filename: &str) -> Vec<Record> {
@@ -21,8 +21,8 @@ fn parse_input(filename: &str) -> Vec<Record> {
             .unwrap()
             .trim()
             .split(',')
-            .map(|s| s.parse::<u32>().unwrap())
-            .collect::<Vec<u32>>();
+            .map(|s| s.parse::<usize>().unwrap())
+            .collect::<Vec<usize>>();
         let mut springs = Vec::new();
         let mut current_group = String::new();
         for (i, c) in spring_str.chars().enumerate() {
@@ -44,6 +44,35 @@ fn parse_input(filename: &str) -> Vec<Record> {
     }).collect::<Vec<Record>>()
 }
 
+fn get_arrangements(record: &Record) -> usize { 
+    if record.damaged_spring_groupings.len() == 0 {
+        return 1;
+    }
+    let next_damaged_spring_grouping = record.damaged_spring_groupings[0];
+    let next_spring_group = &record.springs[0];
+    if next_spring_group.len() < next_damaged_spring_grouping || next_spring_group.chars().nth(0).unwrap() == OPERATIONAL {
+        return get_arrangements(&Record {
+            springs: record.springs[1..].to_vec(),
+            damaged_spring_groupings: record.damaged_spring_groupings.clone(),
+        });
+    }
+    if next_spring_group.len() == next_damaged_spring_grouping && next_spring_group.chars().nth(0).unwrap() == DAMAGED {
+        return get_arrangements(&Record {
+            springs: record.springs[1..].to_vec(),
+            damaged_spring_groupings: record.damaged_spring_groupings[1..].to_vec(),
+        });
+    }
+    let mut arrangements = 0;
+
+    arrangements
+ }
+
+fn solution(filename: &str) -> usize {
+    let records = parse_input(filename);
+    records.iter().map(|r| get_arrangements(r)).sum()
+}
+
 fn main() {
-    println!("{:?}", parse_input("example.txt"));
+    assert_eq!(solution("example.txt"), 21);
+    assert_eq!(solution("input.txt"), 0);
 }
