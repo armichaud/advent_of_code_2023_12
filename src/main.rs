@@ -74,42 +74,49 @@ fn is_valid_arrangement(arrangement: String, record: Record) -> bool {
             continue;
         }
     }
-    true
+    groups.is_empty() || groups == vec![0]
 }
 
-fn get_all_permutations(n: usize) -> Vec<String> {
-    if n == 1 {
-        return vec![OPERATIONAL.to_string(), DAMAGED.to_string()];
+fn get_all_permutations(n: usize, memo: &mut HashMap<usize, Vec<String>>) -> Vec<String> {
+    if memo.contains_key(&n) {
+        return memo.get(&n).unwrap().clone();
     }
     let mut permutations = Vec::new();
-    for p in get_all_permutations(n - 1) {
+    for p in get_all_permutations(n - 1, memo) {
         permutations.push(format!("{}{}", OPERATIONAL, p));
         permutations.push(format!("{}{}", DAMAGED, p));
     }
     permutations
 }
 
-fn get_arrangements(working_arrangement: String, record: &Record) -> usize { 
+fn get_arrangements(working_arrangement: String, record: &Record, memo: &mut HashMap<usize, Vec<String>>) -> usize {
     if working_arrangement.len() == record.full_record.len() {
         return if is_valid_arrangement(working_arrangement, record.clone()) { 1 } else { 0 };
     }
     let mut arrangements = 0;
-    for i in 0..record.springs.len() {
-        let spring = record.springs[i].clone();
-        if spring.chars().next().unwrap() == UNKNOWN {
-            for p in get_all_permutations(spring.len()) {
-                arrangements += get_arrangements(format!("{}{}", working_arrangement, p), record);
-            }
-        } else {
-            arrangements += get_arrangements(format!("{}{}", working_arrangement, spring), record);
+    let mut remaining_springs = record.springs.clone();
+    let spring = remaining_springs.remove(0);
+    let new_record = Record {
+        full_record: record.full_record.clone(),
+        springs: remaining_springs,
+        damaged_spring_groupings: record.damaged_spring_groupings.clone(),
+    };
+    if spring.chars().next().unwrap() == UNKNOWN {
+        for p in get_all_permutations(spring.len(), memo) {
+
+            arrangements += get_arrangements(format!("{}{}", working_arrangement, p), &new_record, memo);
         }
+    } else {
+        arrangements += get_arrangements(format!("{}{}", working_arrangement, spring), &new_record, memo);
     }
     arrangements
 }
 
 fn solution(filename: &str) -> usize {
     let records = parse_input(filename);
-    records.iter().map(|r| get_arrangements(String::new(), r)).sum()
+    let mut m = HashMap::new();
+    m.insert(1, vec![OPERATIONAL.to_string(), DAMAGED.to_string()]);
+    records.iter().map(|r| get_arrangements(String::new(), r, &mut m)).sum()
 }
 
 fn main() {
