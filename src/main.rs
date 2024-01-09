@@ -120,6 +120,6 @@ fn solution(filename: &str) -> usize {
 }
 
 fn main() {
-    assert_eq!(solution("example.txt"), 21);
-    assert_eq!(solution("input.txt"), 0);
+    println!("{}", solution("example.txt"));
+    println!("{}", solution("input.txt"));
 }

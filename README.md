@@ -1,0 +1,3 @@
+Solved part 1 
+
+Checking every possible is obviously a fairly slow solution, but my implementation does employ memoization of the combinations. When I saw it first this problem, I thought the only solution besides brute force would be some trick, but looking at others' solutions, the only difference between their parts 1 and 2 were memoization. There was one (exception)[https://alexoxorn.github.io/posts/aoc-day12-regular_languages/], from whom I learned about DFAs. At that point though, I had decided learning new concepts was more important than getting the right answers, so I opted not to try to implement this for part 2. 
